@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      width: 400px;
+    }
+    input, select {
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #message {
+      text-align: center;
+      color: red;
+      margin-top: 10px;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .login-link a {
+      color: #007bff;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <form id="signupForm">
+    <h2>Créer un compte</h2>
+
+    <select id="typeUtilisateur" required>
+      <option value="">-- Sélectionnez le type --</option>
+      <option value="etudiant">Étudiant</option>
+      <option value="enseignant">Enseignant</option>
+    </select>
+
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="text" id="nom" placeholder="Nom" required />
+    <input type="text" id="prenom" placeholder="Prénom" required />
+    <input type="date" id="dateNaissance" required />
+    
+    <select id="sexe" required>
+      <option value="">-- Sexe --</option>
+      <option value="Homme">Homme</option>
+      <option value="Femme">Femme</option>
+    </select>
+
+    <input type="text" id="etablissement" placeholder="Établissement" required />
+    <input type="text" id="filiere" placeholder="Filière" required />
+    <input type="password" id="password" placeholder="Mot de passe" required />
+
+    <button type="submit">S'inscrire</button>
+    <p id="message"></p>
+    <div class="login-link">
+      <p>Déjà un compte ? <a href="Connexion.html">Connectez-vous</a></p>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const data = {
+        type: document.getElementById("typeUtilisateur").value,
+        email: document.getElementById("email").value,
+        nom: document.getElementById("nom").value,
+        prenom: document.getElementById("prenom").value,
+        dateNaissance: document.getElementById("dateNaissance").value,
+        sexe: document.getElementById("sexe").value,
+        etablissement: document.getElementById("etablissement").value,
+        filiere: document.getElementById("filiere").value,
+        password: document.getElementById("password").value
+      };
+
+      try {
+        const response = await fetch("http://localhost:3000/inscription", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("Inscription réussie !");
+          window.location.href = "Connexion.html";
+        } else {
+          document.getElementById("message").textContent = result.error || "Erreur lors de l'inscription.";
+        }
+      } catch (error) {
+        document.getElementById("message").textContent = "Erreur réseau ou serveur.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
