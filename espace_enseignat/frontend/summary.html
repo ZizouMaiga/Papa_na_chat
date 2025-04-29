@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Prévisualisation & Publication - Application Examen</title>
+  <link rel="stylesheet" href="../styles/style.css">
+
+</head>
+<body>
+
+  <header>
+    <h1> Mes examen</h1>
+    <nav>
+      <a href="index.html">Accueil</a>
+      <a href="add_question.html">Ajouter Question</a>
+      <a href="create_exam.html">Créer Examen</a>
+      <a href="questions_list.html">Voir Examens</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <h2>Prévisualisation de l'examen</h2>
+
+    <div class="exam-summary">
+      <h3>Titre de l'Examen</h3>
+      <p><strong>Description :</strong> Ceci est un exemple de description d'examen.</p>
+      
+      <h4>Questions :</h4>
+      <div class="question-item">
+        <p><strong>Question 1 :</strong> Quel est le capital de la France ?</p>
+      </div>
+      <div class="question-item">
+        <p><strong>Question 2 :</strong> Combien de continents existe-t-il ?</p>
+      </div>
+      <div class="question-item">
+        <p><strong>Question 3 :</strong> Que signifie HTML ?</p>
+      </div>
+    </div>
+
+    <button class="publish-button" onclick="generateExamLink()">Publier l'Examen</button>
+
+    <div id="link-container">
+      <p><strong>Envoyez ce lien aux élèves :</strong></p>
+      <p id="exam-link"></p>
+    </div>
+
+  </div>
+
+  <footer>
+    &copy; 2025 Mon Application Examen
+  </footer>
+
+  <script>
+    function generateExamLink() {
+      if (confirm("Êtes-vous sûr de vouloir publier cet examen ?")) {
+        // Générer un ID unique (exemple simple)
+        const randomId = Math.random().toString(36).substr(2, 8); // Exemple : "f1a2b3c4"
+        const examUrl = window.location.origin + "/exam.html?id=" + randomId;
+
+        // Afficher le lien
+        document.getElementById('exam-link').textContent = examUrl;
+        document.getElementById('link-container').style.display = 'block';
+
+        alert("Lien généré avec succès !");
+      } else {
+        alert("Publication annulée.");
+      }
+    }
+  </script>
+
+</body>
+</html>
