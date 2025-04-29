@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter une Question - Application Examen</title>
+  <link rel="stylesheet" href="../styles/style.css">
+
+</head>
+<body>
+
+<header>
+  <h1>Application Examen </h1>
+  <nav>
+    <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
+    <a href="results.html" class="nav-button">Visualiser</a>
+    <a href="profile.html" class="nav-button">Profil</a>
+    <a href="logout.html" class="nav-button">Déconnexion</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="question-form">
+    <h2>Ajouter une Question</h2>
+    <form id="questionForm">
+      <label for="questionType">Type de question :</label>
+      <select id="questionType" required>
+        <option value=""> Sélectionner </option>
+        <option value="direct">Question Directe</option>
+        <option value="qcm">QCM</option>
+      </select>
+
+      <label for="statement">Énoncé :</label>
+      <textarea id="statement" rows="4" required></textarea>
+
+      
+
+      <div id="directOptions" style="display: none;">
+        <label for="directAnswer">Réponse correcte :</label>
+        <input type="text" id="directAnswer">
+
+        <label for="tolerance">Taux de tolérance (%) :</label>
+        <input type="number" id="tolerance" min="0" max="100" value="0">
+      </div>
+
+      <div id="qcmOptions" style="display: none;">
+        <label>Options du QCM :</label>
+        <div id="optionsList"></div>
+        <button type="button" onclick="addOption()">Ajouter une Option</button>
+      </div>
+
+      <label for="points">Note :</label>
+      <input type="number" id="points" min="1" required>
+
+      <label for="duration">Durée (en secondes) :</label>
+      <input type="number" id="duration" min="10" required>
+      <label for="media">Média (Image / Audio / Vidéo) :</label>
+      <input type="file" id="media" accept="image/,audio/,video/*">
+
+      <button type="submit" style="margin-top: 1rem;">Ajouter la Question</button>
+    </form>
+  </div>
+
+  <button class="finish-btn" onclick="finishAdding()">Terminer et consulter l'examen</button>
+
+</div>
+
+<footer>
+  &copy; 2025 Plateforme d’Examen en ligne
+</footer>
+
+<script>
+  const questions = [];
+
+  const questionType = document.getElementById('questionType');
+  const directOptions = document.getElementById('directOptions');
+  const qcmOptions = document.getElementById('qcmOptions');
+  const optionsList = document.getElementById('optionsList');
+
+  questionType.addEventListener('change', function() {
+    if (this.value === 'direct') {
+      directOptions.style.display = 'block';
+      qcmOptions.style.display = 'none';
+    } else if (this.value === 'qcm') {
+      directOptions.style.display = 'none';
+      qcmOptions.style.display = 'block';
+    } else {
+      directOptions.style.display = 'none';
+      qcmOptions.style.display = 'none';
+    }
+  });
+
+  function addOption() {
+    const optionDiv = document.createElement('div');
+    optionDiv.classList.add('option-container');
+    optionDiv.innerHTML = `
+      <input type="text" placeholder="Texte de l'option" required>
+      <label><input type="checkbox"> Bonne réponse</label>
+    `;
+    optionsList.appendChild(optionDiv);
+  }
+
+  document.getElementById('questionForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const type = questionType.value;
+    const statement = document.getElementById('statement').value;
+    const points = document.getElementById('points').value;
+    const duration = document.getElementById('duration').value;
+    const media = document.getElementById('media').files[0]?.name || '';
+
+    if (!type || !statement || !points || !duration) {
+      alert('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    const newQuestion = {
+      type: type,
+      statement: statement,
+      media: media,
+      points: points,
+      duration: duration
+    };
+
+    if (type === 'direct') {
+      const directAnswer = document.getElementById('directAnswer').value;
+      const tolerance = document.getElementById('tolerance').value;
+      if (!directAnswer) {
+        alert('Veuillez entrer la réponse correcte.');
+        return;
+      }
+      newQuestion.directAnswer = directAnswer;
+      newQuestion.tolerance = tolerance;
+    } else if (type === 'qcm') {
+      const options = [];
+      document.querySelectorAll('#optionsList .option-container').forEach(opt => {
+        const text = opt.querySelector('input[type="text"]').value;
+        const correct = opt.querySelector('input[type="checkbox"]').checked;
+        if (text) {
+          options.push({ text: text, correct: correct });
+        }
+      });
+      if (options.length < 2) {
+        alert('Veuillez ajouter au moins 2 options pour un QCM.');
+        return;
+      }
+      newQuestion.options = options;
+    }
+
+    questions.push(newQuestion);
+    alert("Question ajoutée avec succès !");
+    this.reset();
+    optionsList.innerHTML = '';
+    directOptions.style.display = 'none';
+    qcmOptions.style.display = 'none';
+  });
+
+  function finishAdding() {
+    if (questions.length === 0) {
+      alert('Ajoutez au moins une question.');
+      return;
+    }
+    localStorage.setItem('examQuestions', JSON.stringify(questions));
+    window.location.href = "review_exam.html";
+  }
+</script>
+
+</body>
+</html>
