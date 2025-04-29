@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Profil - Application Examen</title>
+  <link rel="stylesheet" href="../styles/style.css">
+  <script>
+    window.onload = function() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      if (!user) {
+        // Si pas d'utilisateur connecté, on redirige vers login
+        window.location.href = "login.html";
+      } else {
+        // Afficher l'email
+        document.getElementById('userEmail').textContent = user.email;
+      }
+    };
+  </script>
+</head>
+<body>
+
+<header>
+  <h1>Mon Profil</h1>
+  <nav>
+    <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
+    <a href="results.html" class="nav-button">Visualiser</a>
+    <a href="profile.html" class="nav-button">Profil</a>
+    <a href="logout.html" class="nav-button">Déconnexion</a>
+  </nav>
+</header>
+
+<div class="container">
+  <h2>Informations de l'utilisateur</h2>
+  <p><strong>Email :</strong> <span id="userEmail"></span></p>
+</div>
+
+<footer>
+  &copy; 2025 Plateforme d’Examen en ligne
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Mes Examens </title>
+  <link rel="stylesheet" href="../styles/style.css">
+
+</head>
+<body>
+
+  <header>
+    <h1>Mes Examens</h1>
+    <nav>
+      <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
+      <a href="results.html" class="nav-button">Visualiser</a>
+      <a href="profile.html" class="nav-button">Profil</a>
+      <a href="logout.html" class="nav-button">Déconnexion</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <a href="create_exam.html" class="create-button">Créer un Nouvel Examen</a>
+
+    <!-- Liste des examens -->
+    <div id="examList">
+      <!-- Exemple d'examen -->
+      <div class="exam-card">
+        <div class="exam-info">
+          <h3>Titre : Mathématiques - Contrôle S4</h3>
+          <p>Description : Examen final de Mathématiques.</p>
+          <p>Public : 2e année MIP S4</p>
+        </div>
+        <div class="exam-actions">
+          <button onclick="editExam()">Modifier</button>
+          <button class="delete" onclick="deleteExam()">Supprimer</button>
+        </div>
+      </div>
+
+      <div class="exam-card">
+        <div class="exam-info">
+          <h3>Titre : Informatique - Examen S2</h3>
+          <p>Description : Test final sur HTML, CSS et JavaScript.</p>
+          <p>Public : 1ère année Informatique</p>
+        </div>
+        <div class="exam-actions">
+          <button onclick="editExam()">Modifier</button>
+          <button class="delete" onclick="deleteExam()">Supprimer</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <footer>
+    &copy; 2025 Plateforme d’Examen en ligne
+  </footer>
+
+  <script>
+    function editExam() {
+      alert('Redirection vers la page de modification de l\'examen.');
+      // Rediriger vers une page modification_exam.html (à créer)
+      // window.location.href = "modification_exam.html?id=1234";
+    }
+
+    function deleteExam() {
+      if (confirm('Êtes-vous sûr de vouloir supprimer cet examen ?')) {
+        alert('Examen supprimé avec succès.');
+        // Ici, tu pourras envoyer une requête au serveur pour supprimer l'examen
+      }
+    }
+  </script>
+
+</body>
+</html>
