@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer un Nouvel Examen - Application Examen</title>
+  <link rel="stylesheet" href="../styles/style.css">
+</head>
+<body>
+
+<header>
+  <h1>Application Examen</h1>
+  <nav>
+    <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
+    <a href="results.html" class="nav-button">Visualiser</a>
+    <a href="profile.html" class="nav-button">Profil</a>
+    <a href="logout.html" class="nav-button">Déconnexion</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="exam-form">
+    <h2>Informations sur l'examen</h2>
+    <form id="examForm">
+      <label for="title">Titre de l'examen :</label>
+      <input type="text" id="title" name="title" required>
+
+      <label for="description">Description de l'examen :</label>
+      <textarea id="description" name="description" rows="4" required></textarea>
+
+      <label for="target">Public ciblé :</label>
+      <input type="text" id="target" name="target" placeholder="Ex: 2e année MIP S4" required>
+
+      <button type="submit" class="start-btn">Commencer à ajouter des questions</button>
+    </form>
+  </div>
+
+</div>
+
+<footer>
+  &copy; 2025 Plateforme d’Examen en ligne
+</footer>
+
+<script>
+  document.getElementById('examForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const target = document.getElementById('target').value;
+
+    if (title && description && target) {
+      const examData = {
+        title: title,
+        description: description,
+        target: target
+      };
+
+      // Stocker les infos de l'examen dans localStorage
+      localStorage.setItem('currentExam', JSON.stringify(examData));
+
+      // Redirection vers ajout de questions
+      window.location.href = "add_question.html";
+    } else {
+      alert('Veuillez remplir tous les champs.');
+    }
+  });
+</script>
+
+</body>
+</html>
