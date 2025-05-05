@@ -2,23 +2,135 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Consulter Examen - Application Examen</title>
+  <title>Examen - Résumé</title>
   <link rel="stylesheet" href="../styles/style.css">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background-color: #f1f3f6;
+    }
+
+    header {
+      background-color: #2f80ed;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .section {
+      margin-bottom: 30px;
+    }
+
+    .section h2 {
+      margin-bottom: 10px;
+      color: #333;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    .question {
+      border: 1px solid #e0e0e0;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      background-color: #fafafa;
+    }
+
+    .question h3 {
+      margin-top: 0;
+      color: #2f80ed;
+    }
+
+    .options ul {
+      padding-left: 20px;
+    }
+
+    .btn-group {
+      margin-top: 10px;
+    }
+
+    button {
+      border: none;
+      padding: 8px 14px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .edit-btn {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .publish-btn {
+      background-color: #27ae60;
+      color: white;
+      padding: 12px 20px;
+      font-size: 16px;
+      margin-top: 20px;
+    }
+
+    #link-container {
+      display: none;
+      background-color: #e8f5e9;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border-left: 4px solid #2ecc71;
+    }
+
+    #exam-link {
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+    }
+  </style>
 </head>
 <body>
 
+<header>
+  <h1>Résumé de votre Examen</h1>
+</header>
+
 <div class="container">
-  <div class="exam-summary">
-    <h2>Résumé de votre Examen</h2>
-    <div id="examDetails"></div>
+  <div class="section" id="examHeader">
+    <!-- Détails de l’examen insérés par JS -->
+  </div>
 
-    <button class="publish-btn" onclick="publishExam()">Publier l'Examen</button>
+  <div class="section" id="questionList">
+    <!-- Questions insérées par JS -->
+  </div>
 
-    <div id="link-container">
-      <p><strong>Lien généré :</strong></p>
-      <p id="exam-link"></p>
-    </div>
+  <button class="publish-btn" onclick="publishExam()">📤 Publier l'examen</button>
+
+  <div id="link-container">
+    <p><strong>Lien de l'examen :</strong> <span id="exam-link"></span></p>
   </div>
 </div>
 
@@ -28,53 +140,53 @@
 
 <script>
   let examInfo = JSON.parse(localStorage.getItem('currentExam')) || {
-    title: "Examen sans titre",
+    title: "Titre manquant",
     description: "Pas de description",
     target: "Non défini"
   };
   let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
 
-  function loadExam() {
-    const examDetails = document.getElementById('examDetails');
-    let html = `
-      <h3>Titre : ${examInfo.title}</h3>
+  function renderExam() {
+    document.getElementById('examHeader').innerHTML = `
+      <h2>${examInfo.title}</h2>
       <p><strong>Description :</strong> ${examInfo.description}</p>
-      <p><strong>Public :</strong> ${examInfo.target}</p>
-      <hr>
-      <h4>Questions :</h4>
-      <ol>
+      <p><strongPublic concerné :</strong> ${examInfo.target}</p>
     `;
 
+    let html = "";
     questions.forEach((q, index) => {
-      html += `<li id="question-${index}">
-        <strong>Type :</strong> ${q.type === "qcm" ? "QCM" : "Question Directe"}<br>
-        <strong>Énoncé :</strong> ${q.statement}<br>
-        <strong>Note :</strong> ${q.points} points<br>
-        <strong>Durée :</strong> ${q.duration} secondes<br>`;
-
-      if (q.media) {
-        html += `<strong>Média :</strong> ${q.media}<br>`;
-      }
+      html += `
+        <div class="question">
+          <h3>Question ${index + 1}</h3>
+          <p><strong>Type :</strong> ${q.type === 'qcm' ? 'QCM' : 'Directe'}</p>
+          <p><strong>Énoncé :</strong> ${q.statement}</p>
+          <p><strong>Note :</strong> ${q.points} point(s)</p>
+          <p><strong>Durée :</strong> ${q.duration} sec</p>
+      `;
 
       if (q.type === "direct") {
-        html += `<strong>Réponse correcte :</strong> ${q.directAnswer}<br>
-        <strong>Tolérance :</strong> ${q.tolerance}%<br>`;
+        html += `
+          <p><strong>Réponse attendue :</strong> ${q.directAnswer}</p>
+          <p><strong>Tolérance :</strong> ${q.tolerance}%</p>
+        `;
       } else if (q.type === "qcm") {
-        html +=` <strong>Options :</strong><ul>`;
+        html += `<div class="options"><strong>Options :</strong><ul>`;
         q.options.forEach(opt => {
-          html += `<li>${opt.text} ${opt.correct ? "(Bonne réponse)" : ""}</li>`;
+          html += `<li>${opt.text} ${opt.correct ? "<strong>(✓)</strong>" : ""}</li>`;
         });
-        html += `</ul>`;
+        html += `</ul></div>`;
       }
 
       html += `
-        <button class="edit-btn" onclick="editQuestion(${index})">Modifier</button>
-        <button class="delete-btn" onclick="deleteQuestion(${index})">Supprimer</button>
-      </li><hr>`;
+        <div class="btn-group">
+          <button class="edit-btn" onclick="editQuestion(${index})">Modifier</button>
+          <button class="delete-btn" onclick="deleteQuestion(${index})">Supprimer</button>
+        </div>
+        </div>
+      `;
     });
 
-    html +=` </ol>`;
-    examDetails.innerHTML = html;
+    document.getElementById('questionList').innerHTML = html;
   }
 
   function editQuestion(index) {
@@ -83,32 +195,31 @@
     if (newStatement !== null && newStatement.trim() !== "") {
       q.statement = newStatement;
       localStorage.setItem('examQuestions', JSON.stringify(questions));
-      loadExam();
+      renderExam();
     }
   }
 
   function deleteQuestion(index) {
-    if (confirm('Êtes-vous sûr de vouloir supprimer cette question ?')) {
+    if (confirm("Supprimer cette question ?")) {
       questions.splice(index, 1);
       localStorage.setItem('examQuestions', JSON.stringify(questions));
-      loadExam();
+      renderExam();
     }
   }
 
   function publishExam() {
     if (questions.length === 0) {
-      alert('Vous devez avoir au moins une question avant de publier.');
+      alert("Ajoutez des questions avant de publier.");
       return;
     }
     const examId = Math.random().toString(36).substr(2, 8);
-    const examUrl = window.location.origin + "/exam.html?id=" + examId;
-
-    document.getElementById('exam-link').textContent = examUrl;
-    document.getElementById('link-container').style.display = 'block';
-    alert('Examen publié avec succès ! Envoyez ce lien aux élèves.');
+    const url = window.location.origin + "/exam.html?id=" + examId;
+    document.getElementById('exam-link').textContent = url;
+    document.getElementById('link-container').style.display = "block";
+    alert("Examen publié avec succès !");
   }
 
-  loadExam();
+  renderExam();
 </script>
 
 </body>
