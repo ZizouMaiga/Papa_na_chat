@@ -7,12 +7,13 @@ const db = new sqlite3.Database('./users.db', (err) => {
     console.log("✅ Connecté à la base de données SQLite.");
   }
 });
-// Création de la table si elle n'existe pas
+
+// 🔹 Table des utilisateurs
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
-    email TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
     nom TEXT NOT NULL,
     prenom TEXT NOT NULL,
     dateNaissance TEXT NOT NULL,
@@ -23,9 +24,49 @@ db.run(`
   )
 `, (err) => {
   if (err) {
-    console.error("❌ Erreur lors de la création de la table :", err.message);
+    console.error("❌ Erreur création table users :", err.message);
   } else {
     console.log("✅ Table 'users' prête.");
+  }
+});
+
+// 🔹 Table des examens
+db.run(`
+  CREATE TABLE IF NOT EXISTS exams (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    target TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`, (err) => {
+  if (err) {
+    console.error("❌ Erreur création table exams :", err.message);
+  } else {
+    console.log("✅ Table 'exams' prête.");
+  }
+});
+
+// 🔹 Table des questions
+db.run(`
+  CREATE TABLE IF NOT EXISTS questions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    examId INTEGER,
+    type TEXT,
+    statement TEXT,
+    media TEXT,
+    points INTEGER,
+    duration INTEGER,
+    directAnswer TEXT,
+    tolerance INTEGER,
+    options TEXT,
+    FOREIGN KEY (examId) REFERENCES exams(id)
+  )
+`, (err) => {
+  if (err) {
+    console.error("❌ Erreur création table questions :", err.message);
+  } else {
+    console.log("✅ Table 'questions' prête.");
   }
 });
 
