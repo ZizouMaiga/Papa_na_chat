@@ -3,116 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <title>Examen - Résumé</title>
-  <link rel="stylesheet" href="../styles/style.css">
-  <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background-color: #f1f3f6;
-    }
-
-    header {
-      background-color: #2f80ed;
-      color: white;
-      padding: 20px 40px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .container {
-      max-width: 1000px;
-      margin: 40px auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    }
-
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .section h2 {
-      margin-bottom: 10px;
-      color: #333;
-      border-bottom: 2px solid #eee;
-      padding-bottom: 5px;
-    }
-
-    .question {
-      border: 1px solid #e0e0e0;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      background-color: #fafafa;
-    }
-
-    .question h3 {
-      margin-top: 0;
-      color: #2f80ed;
-    }
-
-    .options ul {
-      padding-left: 20px;
-    }
-
-    .btn-group {
-      margin-top: 10px;
-    }
-
-    button {
-      border: none;
-      padding: 8px 14px;
-      border-radius: 5px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-right: 10px;
-    }
-
-    .edit-btn {
-      background-color: #2196f3;
-      color: white;
-    }
-
-    .delete-btn {
-      background-color: #e74c3c;
-      color: white;
-    }
-
-    .publish-btn {
-      background-color: #27ae60;
-      color: white;
-      padding: 12px 20px;
-      font-size: 16px;
-      margin-top: 20px;
-    }
-
-    #link-container {
-      display: none;
-      background-color: #e8f5e9;
-      padding: 15px;
-      border-radius: 8px;
-      margin-top: 20px;
-      border-left: 4px solid #2ecc71;
-    }
-
-    #exam-link {
-      font-weight: bold;
-      color: #27ae60;
-    }
-
-    footer {
-      text-align: center;
-      padding: 20px;
-      color: #aaa;
-    }
-  </style>
+  <link rel="stylesheet" href="review.css">
+  
 </head>
 <body>
+  <div id="reviewContainer"></div>
 
 <header>
   <h1>Résumé de votre Examen</h1>
@@ -221,6 +116,7 @@
 
   renderExam();
 </script>
+<script src="../../script/review_exam_backend.js"></script>
 
 </body>
 </html>

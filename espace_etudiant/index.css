@@ -1,0 +1,75 @@
+/* index.css - Style marron chic */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+  
+  body {
+    background: linear-gradient(to right, #f3e7d9, #efe2d0);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .card {
+    background-color: #fffaf5;
+    padding: 2.5rem 3rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(102, 51, 0, 0.2);
+    text-align: center;
+    max-width: 520px;
+    width: 90%;
+    border: 1px solid #d2b48c;
+  }
+  
+  .card h1 {
+    font-size: 2.2rem;
+    color: #4e342e;
+    margin-bottom: 1rem;
+  }
+  
+  .card p {
+    font-size: 1.1rem;
+    color: #6d4c41;
+    margin-bottom: 1.5rem;
+  }
+  
+  #examLinkInput {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 1px solid #a1887f;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fdfaf6;
+    color: #4e342e;
+  }
+  
+  #examLinkInput:focus {
+    outline: none;
+    border-color: #8d6e63;
+    box-shadow: 0 0 0 3px rgba(141, 110, 99, 0.2);
+  }
+  
+  #goExam {
+    width: 100%;
+    padding: 12px;
+    background-color: #795548;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  #goExam:hover {
+    background-color: #5d4037;
+  }
+  
