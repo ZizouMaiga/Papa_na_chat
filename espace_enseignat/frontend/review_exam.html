@@ -4,119 +4,141 @@
   <meta charset="UTF-8">
   <title>Examen - Résumé</title>
   <link rel="stylesheet" href="review.css">
-  
 </head>
 <body>
   <div id="reviewContainer"></div>
 
-<header>
-  <h1>Résumé de votre Examen</h1>
-</header>
+  <header>
+    <h1>Résumé de votre Examen</h1>
+  </header>
 
-<div class="container">
-  <div class="section" id="examHeader">
-    <!-- Détails de l’examen insérés par JS -->
+  <div class="container">
+    <div class="section" id="examHeader">
+      <!-- Détails de l’examen insérés par JS -->
+    </div>
+
+    <div class="section" id="questionList">
+      <!-- Questions insérées par JS -->
+    </div>
+
+    <button class="publish-btn" onclick="publishExam()">📤 Publier l'examen</button>
+
+    <div id="link-container" style="display: none;">
+      <p><strong>Lien de l'examen :</strong> <span id="exam-link"></span></p>
+    </div>
   </div>
 
-  <div class="section" id="questionList">
-    <!-- Questions insérées par JS -->
-  </div>
+  <footer>
+    &copy; 2025 Plateforme d’Examen en ligne
+  </footer>
 
-  <button class="publish-btn" onclick="publishExam()">📤 Publier l'examen</button>
+  <script>
+    let examInfo = JSON.parse(localStorage.getItem('currentExam')) || {
+      title: "Titre manquant",
+      description: "Pas de description",
+      target: "Non défini"
+    };
+    let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
 
-  <div id="link-container">
-    <p><strong>Lien de l'examen :</strong> <span id="exam-link"></span></p>
-  </div>
-</div>
-
-<footer>
-  &copy; 2025 Plateforme d’Examen en ligne
-</footer>
-
-<script>
-  let examInfo = JSON.parse(localStorage.getItem('currentExam')) || {
-    title: "Titre manquant",
-    description: "Pas de description",
-    target: "Non défini"
-  };
-  let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
-
-  function renderExam() {
-    document.getElementById('examHeader').innerHTML = `
-      <h2>${examInfo.title}</h2>
-      <p><strong>Description :</strong> ${examInfo.description}</p>
-      <p><strongPublic concerné :</strong> ${examInfo.target}</p>
-    `;
-
-    let html = "";
-    questions.forEach((q, index) => {
-      html += `
-        <div class="question">
-          <h3>Question ${index + 1}</h3>
-          <p><strong>Type :</strong> ${q.type === 'qcm' ? 'QCM' : 'Directe'}</p>
-          <p><strong>Énoncé :</strong> ${q.statement}</p>
-          <p><strong>Note :</strong> ${q.points} point(s)</p>
-          <p><strong>Durée :</strong> ${q.duration} sec</p>
+    function renderExam() {
+      document.getElementById('examHeader').innerHTML = `
+        <h2>${examInfo.title}</h2>
+        <p><strong>Description :</strong> ${examInfo.description}</p>
+        <p><strong>Public concerné :</strong> ${examInfo.target}</p>
       `;
 
-      if (q.type === "direct") {
+      let html = "";
+      questions.forEach((q, index) => {
         html += `
-          <p><strong>Réponse attendue :</strong> ${q.directAnswer}</p>
-          <p><strong>Tolérance :</strong> ${q.tolerance}%</p>
+          <div class="question">
+            <h3>Question ${index + 1}</h3>
+            <p><strong>Type :</strong> ${q.type === 'qcm' ? 'QCM' : 'Directe'}</p>
+            <p><strong>Énoncé :</strong> ${q.statement}</p>
+            <p><strong>Note :</strong> ${q.points} point(s)</p>
+            <p><strong>Durée :</strong> ${q.duration} sec</p>
         `;
-      } else if (q.type === "qcm") {
-        html += `<div class="options"><strong>Options :</strong><ul>`;
-        q.options.forEach(opt => {
-          html += `<li>${opt.text} ${opt.correct ? "<strong>(✓)</strong>" : ""}</li>`;
-        });
-        html += `</ul></div>`;
-      }
 
-      html += `
-        <div class="btn-group">
-          <button class="edit-btn" onclick="editQuestion(${index})">Modifier</button>
-          <button class="delete-btn" onclick="deleteQuestion(${index})">Supprimer</button>
-        </div>
-        </div>
-      `;
+        if (q.type === "direct") {
+          html += `
+            <p><strong>Réponse attendue :</strong> ${q.directAnswer}</p>
+            <p><strong>Tolérance :</strong> ${q.tolerance}%</p>
+          `;
+        } else if (q.type === "qcm") {
+          html += `<div class="options"><strong>Options :</strong><ul>`;
+          q.options.forEach(opt => {
+            html += `<li>${opt.text} ${opt.correct ? "<strong>(✓)</strong>" : ""}</li>`;
+          });
+          html += `</ul></div>`;
+        }
+
+        html += `
+          <div class="btn-group">
+            <button class="edit-btn" onclick="editQuestion(${index})">Modifier</button>
+            <button class="delete-btn" onclick="deleteQuestion(${index})">Supprimer</button>
+          </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('questionList').innerHTML = html;
+    }
+
+    function editQuestion(index) {
+      const q = questions[index];
+      const newStatement = prompt("Modifier l'énoncé :", q.statement);
+      if (newStatement !== null && newStatement.trim() !== "") {
+        q.statement = newStatement;
+        localStorage.setItem('examQuestions', JSON.stringify(questions));
+        renderExam();
+      }
+    }
+
+    function deleteQuestion(index) {
+      if (confirm("Supprimer cette question ?")) {
+        questions.splice(index, 1);
+        localStorage.setItem('examQuestions', JSON.stringify(questions));
+        renderExam();
+      }
+    }
+
+    async function publishExam() {
+  if (questions.length === 0) {
+    alert("Ajoutez des questions avant de publier.");
+    return;
+  }
+
+  const examId = Math.random().toString(36).substr(2, 8);
+  const examData = {
+    id: examId,
+    title: examInfo.title,
+    description: examInfo.description,
+    target: examInfo.target,
+    questions: questions
+  };
+
+  try {
+    const response = await fetch('http://localhost:3000/api/exams', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(examData)
     });
 
-    document.getElementById('questionList').innerHTML = html;
-  }
+    if (!response.ok) throw new Error('Erreur lors de l’enregistrement');
 
-  function editQuestion(index) {
-    const q = questions[index];
-    const newStatement = prompt("Modifier l'énoncé :", q.statement);
-    if (newStatement !== null && newStatement.trim() !== "") {
-      q.statement = newStatement;
-      localStorage.setItem('examQuestions', JSON.stringify(questions));
-      renderExam();
-    }
-  }
-
-  function deleteQuestion(index) {
-    if (confirm("Supprimer cette question ?")) {
-      questions.splice(index, 1);
-      localStorage.setItem('examQuestions', JSON.stringify(questions));
-      renderExam();
-    }
-  }
-
-  function publishExam() {
-    if (questions.length === 0) {
-      alert("Ajoutez des questions avant de publier.");
-      return;
-    }
-    const examId = Math.random().toString(36).substr(2, 8);
-    const url = window.location.origin + "/exam.html?id=" + examId;
+    const url = `${window.location.origin}/espace_etudiant/exam.html?id=${examId}`;
     document.getElementById('exam-link').textContent = url;
     document.getElementById('link-container').style.display = "block";
     alert("Examen publié avec succès !");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de la publication de l’examen.");
   }
+}
 
-  renderExam();
-</script>
-<script src="../../script/review_exam_backend.js"></script>
+    renderExam();
+  </script>
 
+  <!-- Optionnel : script backend si nécessaire -->
+  <script src="../../script/review_exam_backend.js"></script>
 </body>
 </html>

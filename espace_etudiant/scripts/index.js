@@ -3,3 +3,4 @@ document.getElementById('goExam').addEventListener('click', () => {
   if (!link) return alert('Veuillez coller le lien d’examen.');
   window.location.href = link;
 });
+
