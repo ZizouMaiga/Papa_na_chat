@@ -3,68 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <title>Connexion</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    form {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 350px;
-    }
-    input, select {
-      width: 100%;
-      margin-bottom: 12px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    h2 {
-      text-align: center;
-    }
-    #message {
-      color: red;
-      text-align: center;
-      margin-top: 10px;
-    }
-    .signup-link {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .signup-link a {
-      color: #007bff;
-      text-decoration: none;
-    }
-  </style>
+  <link rel="stylesheet" href="connexion.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <form id="loginForm">
-    <h2>Connexion</h2>
+    <h1>Connexion</h1>
+    <i class="fas fa-user-tie"></i>
     <select id="type" required>
-      <option value="">-- Type d'utilisateur --</option>
+      <option value="">-- opter pour --</option>
       <option value="etudiant">Étudiant</option>
       <option value="enseignant">Enseignant</option>
     </select>
+    <i class="fas fa-envelope"></i>
     <input type="email" id="email" placeholder="Email" required />
+    <i class="fas fa-lock"></i>
     <input type="password" id="password" placeholder="Mot de passe" required />
+    <i class="fas fa-arrow-right-to-bracket"></i>
     <button type="submit">Se connecter</button>
     <p id="message"></p>
+    <div class="remember-line">
+      <span>Se remémorer de moi</span>
+      <a href="#"class="forgot-password">Mot de passe oublié ?</a>
+    </div>
+    <div class="remember-check">
+      <input type="checkbox" id="remember">
+    </div>
     <div class="signup-link">
       <p>Pas encore de compte ? <a href="Inscription.html">Inscrivez-vous</a></p>
     </div>

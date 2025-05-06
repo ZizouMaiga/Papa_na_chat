@@ -3,83 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>Inscription</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    form {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      width: 400px;
-    }
-    input, select {
-      width: 100%;
-      margin-bottom: 15px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #message {
-      text-align: center;
-      color: red;
-      margin-top: 10px;
-    }
-    .login-link {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .login-link a {
-      color: #007bff;
-      text-decoration: none;
-    }
-  </style>
+  <link rel="stylesheet" href="inscription.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
   <form id="signupForm">
-    <h2>Créer un compte</h2>
-
+    <h1>fiche d'adhésion </h1>
+    <i class="fas fa-users"></i>
     <select id="typeUtilisateur" required>
-      <option value="">-- Sélectionnez le type --</option>
+      <option value="">-- se prononcer pour --</option>
       <option value="etudiant">Étudiant</option>
       <option value="enseignant">Enseignant</option>
     </select>
-
+    <i class="fas fa-envelope"></i>
     <input type="email" id="email" placeholder="Email" required />
+    <i class="fas fa-id-card"></i>
     <input type="text" id="nom" placeholder="Nom" required />
+    <i class="fas fa-user-circle"></i>
     <input type="text" id="prenom" placeholder="Prénom" required />
+    <i class="fas fa-envelope"></i>
     <input type="date" id="dateNaissance" required />
-    
+    <i class="fas fa-venus-mars"></i>
     <select id="sexe" required>
       <option value="">-- Sexe --</option>
       <option value="Homme">Homme</option>
       <option value="Femme">Femme</option>
     </select>
-
+    <i class="fas fa-school"></i>
     <input type="text" id="etablissement" placeholder="Établissement" required />
+    <i class="fas fa-book"></i>
     <input type="text" id="filiere" placeholder="Filière" required />
+    <i class="fas fa-lock"></i>
     <input type="password" id="password" placeholder="Mot de passe" required />
-
     <button type="submit">S'inscrire</button>
     <p id="message"></p>
     <div class="login-link">
