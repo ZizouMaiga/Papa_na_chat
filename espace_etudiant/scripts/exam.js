@@ -1,105 +1,184 @@
-const examLink = window.location.pathname.split('/').pop();
-let questions = [], current = 0, score = 0, student = { name: null, email: null, location: {} };
+// Récupérer l'ID de l'examen depuis l'URL
+const urlParams = new URLSearchParams(window.location.search);
+const examId = urlParams.get('id');
 
+let currentExam = null;
+let currentQuestionIndex = 0;
+let timer = null;
+let userAnswers = [];
+
+// Fonction pour charger l'examen
 async function loadExam() {
-  const examRes = await fetch('/api/exams/link/' + examLink);
-  if (!examRes.ok) return document.getElementById('examContainer').innerHTML = '<p>Examen introuvable.</p>';
-  const exam = await examRes.json();
-  questions = await fetch(`/api/questions?examId=${exam._id}`).then(r => r.json());
-
-  student.name = prompt('Entrez votre nom complet :');
-  student.email = prompt('Entrez votre email :');
-  if (!student.name || !student.email) return alert('Nom et email obligatoires !');
-
-  try {
-    const pos = await new Promise(resolve => navigator.geolocation.getCurrentPosition(
-      p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }),
-      () => resolve({ lat: null, lon: null })
-    ));
-    student.location = pos;
-  } catch {
-    student.location = { lat: null, lon: null };
-  }
-
-  showQuestion();
-}
-
-function showQuestion() {
-  if (current >= questions.length) return finishExam();
-  const q = questions[current];
-  let html = `<h2>Question ${current + 1}</h2><p>${q.enonce}</p><div id="answers">`;
-
-  if (q.type === 'qcm') {
-    q.options.forEach(opt => {
-      html += `<label><input type="checkbox" value="${opt}"> ${opt}</label>`;
-    });
-  } else {
-    html += `<input type="text" id="directAnswer" placeholder="Votre réponse">`;
-  }
-
-  html += `</div><p>Temps restant : <span id="timer">${q.duree}</span> s</p><button onclick="submitAnswer()">Valider</button>`;
-  document.getElementById('examContainer').innerHTML = html;
-
-  let time = q.duree;
-  const interval = setInterval(() => {
-    time--;
-    document.getElementById('timer').textContent = time;
-    if (time <= 0) { clearInterval(interval); submitAnswer(); }
-  }, 1000);
-}
-
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)
-      );
+    try {
+        const response = await fetch(`http://localhost:3002/api/exams/${examId}`);
+        const data = await response.json();
+        
+        if (data.success) {
+            currentExam = data.exam;
+            document.getElementById('titreExam').textContent = currentExam.title;
+            document.getElementById('startBtn').style.display = 'block';
+            // Attacher l'événement ici
+            const startBtn = document.getElementById('startBtn');
+            startBtn.onclick = () => {
+                if (currentExam && currentExam.questions.length > 0) {
+                    displayQuestion(0);
+                }
+            };
+        } else {
+            throw new Error('Impossible de charger l\'examen');
+        }
+    } catch (error) {
+        document.getElementById('locationStatus').textContent = 
+            'Erreur lors du chargement de l\'examen. Veuillez vérifier le lien.';
+        console.error('Erreur:', error);
     }
-  }
-  return dp[m][n];
 }
 
-function submitAnswer() {
-  const q = questions[current];
-  let correct = false;
-
-  if (q.type === 'directe') {
-    const input = document.getElementById('directAnswer').value.trim().toLowerCase();
-    const expected = q.reponse.trim().toLowerCase();
-    const tol = q.tolerance || 0;
-    correct = (levenshtein(input, expected) / expected.length * 100) <= tol;
-  } else {
-    const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
-    correct = JSON.stringify(selected.sort()) === JSON.stringify((q.bonnesReponses || []).sort());
-  }
-
-  if (correct) score += q.note;
-  current++;
-  showQuestion();
+// Fonction pour afficher une question
+function displayQuestion(questionIndex) {
+    const question = currentExam.questions[questionIndex];
+    const container = document.getElementById('container');
+    
+    // Nettoyer le conteneur
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    
+    // Créer les éléments de la question
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question';
+    
+    const statement = document.createElement('h2');
+    statement.textContent = `Question ${questionIndex + 1}: ${question.statement}`;
+    questionDiv.appendChild(statement);
+    
+    const timerDiv = document.createElement('div');
+    timerDiv.id = 'timer';
+    timerDiv.textContent = `Temps restant: ${question.duration}s`;
+    questionDiv.appendChild(timerDiv);
+    
+    // Créer les éléments selon le type de question
+    if (question.type === 'qcm') {
+        const optionsDiv = document.createElement('div');
+        optionsDiv.className = 'options';
+        
+        question.options.forEach((option, index) => {
+            const label = document.createElement('label');
+            const input = document.createElement('input');
+            input.type = 'radio';
+            input.name = 'answer';
+            input.value = index;
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(option.text));
+            optionsDiv.appendChild(label);
+        });
+        
+        questionDiv.appendChild(optionsDiv);
+    } else if (question.type === 'direct') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'directAnswer';
+        input.placeholder = 'Votre réponse...';
+        questionDiv.appendChild(input);
+    }
+    
+    // Bouton pour soumettre
+    const submitBtn = document.createElement('button');
+    submitBtn.textContent = 'Soumettre';
+    submitBtn.onclick = () => submitAnswer(false, true);
+    questionDiv.appendChild(submitBtn);
+    
+    // Bouton next (suivant)
+    if (questionIndex < currentExam.questions.length - 1) {
+        const nextBtn = document.createElement('button');
+        nextBtn.textContent = 'Suivant';
+        nextBtn.style.marginLeft = '10px';
+        nextBtn.onclick = () => submitAnswer(false, false);
+        questionDiv.appendChild(nextBtn);
+    }
+    
+    container.appendChild(questionDiv);
+    
+    // Démarrer le timer
+    startTimer(question.duration);
 }
 
-async function finishExam() {
-  await fetch('/api/results', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      examId: questions[0].examId,
-      studentName: student.name,
-      studentEmail: student.email,
-      location: student.location,
-      score,
-      answers: [] // Optionnel : tu peux stocker les réponses ici
-    })
-  });
-
-  document.getElementById('examContainer').innerHTML = `<h2>Examen terminé</h2>
-    <p>Merci ${student.name}, votre score est <strong>${score}/100</strong>.</p>`;
+// Fonction pour gérer le timer
+function startTimer(duration) {
+    let timeLeft = duration;
+    
+    clearInterval(timer);
+    timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer').textContent = `Temps restant: ${timeLeft}s`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            submitAnswer(true); // Force submission
+        }
+    }, 1000);
 }
 
+// Fonction pour soumettre une réponse
+function submitAnswer(timeOut = false, showNext = false) {
+    clearInterval(timer);
+    const question = currentExam.questions[currentQuestionIndex];
+    let answer;
+    
+    if (!timeOut) {
+        if (question.type === 'qcm') {
+            const selectedOption = document.querySelector('input[name="answer"]:checked');
+            answer = selectedOption ? parseInt(selectedOption.value) : null;
+        } else if (question.type === 'direct') {
+            answer = document.getElementById('directAnswer').value;
+        }
+    } else {
+        answer = null;
+    }
+    
+    userAnswers[currentQuestionIndex] = answer;
+    
+    if (showNext && currentQuestionIndex < currentExam.questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion(currentQuestionIndex);
+    } else if (!showNext && currentQuestionIndex < currentExam.questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion(currentQuestionIndex);
+    } else if (currentQuestionIndex >= currentExam.questions.length - 1) {
+        finishExam();
+    }
+}
+
+// Fonction pour terminer l'examen
+function finishExam() {
+    let score = 0;
+    let total = 0;
+    currentExam.questions.forEach((q, i) => {
+        // Ajout d'une vérification robuste pour les QCM
+        if (q.type === 'qcm') {
+            total += q.points;
+            const userAnswerIndex = typeof userAnswers[i] === 'number' ? userAnswers[i] : null;
+            if (
+                userAnswerIndex !== null &&
+                q.options[userAnswerIndex] &&
+                q.options[userAnswerIndex].correct === true
+            ) {
+                score += q.points;
+            }
+        } else if (q.type === 'direct') {
+            total += q.points;
+            const userAnswer = (userAnswers[i] || '').toString().trim().toLowerCase();
+            const correctAnswer = (q.directAnswer || '').toString().trim().toLowerCase();
+            if (userAnswer && correctAnswer && userAnswer === correctAnswer) {
+                score += q.points;
+            }
+        }
+    });
+    // Calcul du score sur 100
+    let scoreSur100 = total > 0 ? Math.round((score * 100) / total) : 0;
+    const container = document.getElementById('container');
+    container.innerHTML = `<h2>Examen terminé</h2><p>Votre score : <b>${scoreSur100} / 100</b></p>`;
+}
+
+// Charger l'examen au chargement de la page
 loadExam();

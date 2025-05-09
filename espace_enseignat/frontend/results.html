@@ -51,5 +51,41 @@
     </div>
   </footer>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Demander le titre de l'examen à afficher
+      let examTitle = prompt("Entrez le titre de l'examen pour voir les résultats :");
+      if (!examTitle) return;
+      document.querySelector('.exam-title').textContent = examTitle;
+
+      try {
+        // Appel à l'API pour récupérer les résultats de l'examen par titre
+        const response = await fetch(`http://localhost:3002/api/exams/results?title=${encodeURIComponent(examTitle)}`);
+        const data = await response.json();
+        const tbody = document.querySelector('.results-table tbody');
+        const noResultsMsg = document.querySelector('.no-results');
+
+        if (response.ok && data.results && data.results.length > 0) {
+          noResultsMsg.style.display = 'none';
+          data.results.forEach(result => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${result.nom || ''}</td>
+              <td>${result.prenom || ''}</td>
+              <td>${result.classe || ''}</td>
+              <td>${result.note || ''}</td>
+              <td><a href="${result.copieUrl || '#'}" target="_blank">Voir</a></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          noResultsMsg.style.display = 'block';
+        }
+      } catch (err) {
+        alert("Erreur lors de la récupération des résultats.");
+      }
+    });
+  </script>
+
 </body>
 </html>

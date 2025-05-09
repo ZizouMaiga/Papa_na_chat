@@ -53,11 +53,14 @@
     justify-content: center;
     align-items: center;
     margin-top: 40px;
+    height: 300px;
   }
   
   .main-image {
     max-width: 70%;
-    height: auto;
+    width: 45%;
+    height:  400px;
+    margin-top: 100px;
     border-radius: 15px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   }

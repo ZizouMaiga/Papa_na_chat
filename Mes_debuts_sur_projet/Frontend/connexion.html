@@ -38,25 +38,28 @@
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const type = document.getElementById('type').value;
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       try {
-        const response = await fetch('http://localhost:3000/connexion', {
+        const response = await fetch('http://localhost:3002/api/users/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type, email, password })
+          body: JSON.stringify({ email, password })
         });
 
         const result = await response.json();
 
         if (response.ok) {
           alert('Connexion réussie !');
-          // Redirection possible ici
-          // window.location.href = "dashboard.html";
+          // Redirection selon le rôle
+          if (result.user && result.user.role === 'admin') {
+            window.location.href = '../espace_enseignat/frontend/create_exam.html';
+          } else {
+            window.location.href = '../../espace_etudiant/index.html';
+          }
         } else {
-          document.getElementById('message').textContent = result.error;
+          document.getElementById('message').textContent = result.message || "Erreur lors de la connexion.";
         }
       } catch (error) {
         document.getElementById('message').textContent = "Erreur réseau ou serveur.";

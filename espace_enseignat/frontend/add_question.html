@@ -8,11 +8,11 @@
 </head>
 <body>
 
-<header>
+<header id="mainHeader">
   <h1>Application Examen </h1>
   <nav>
     <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
-    <a href="results.html" class="nav-button">Visualiser</a>
+    <a href="results.html" class="nav-button">Résultat</a>
     <a href="profile.html" class="nav-button">Profil</a>
     <a href="logout.html" class="nav-button">Déconnexion</a>
   </nav>
@@ -70,7 +70,21 @@
 </footer>
 
 <script>
-  const questions = [];
+  // Vérifier l'ID de l'examen au chargement
+  document.addEventListener('DOMContentLoaded', () => {
+    const examId = localStorage.getItem('currentExamId');
+    document.body.insertAdjacentHTML('afterbegin', `<div style="color:blue;font-size:14px;">ID Examen courant : <b>${examId}</b></div>`);
+    if (!examId) {
+      alert('Erreur : Aucun examen en cours. Retour à la création d\'examen.');
+      window.location.href = 'create_exam.html';
+      return;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var header = document.getElementById('mainHeader');
+    if (header) header.style.display = 'none';
+  });
 
   const questionType = document.getElementById('questionType');
   const directOptions = document.getElementById('directOptions');
@@ -100,70 +114,10 @@
     optionsList.appendChild(optionDiv);
   }
 
-  document.getElementById('questionForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-
-    const type = questionType.value;
-    const statement = document.getElementById('statement').value;
-    const points = document.getElementById('points').value;
-    const duration = document.getElementById('duration').value;
-    const media = document.getElementById('media').files[0]?.name || '';
-
-    if (!type || !statement || !points || !duration) {
-      alert('Veuillez remplir tous les champs obligatoires.');
-      return;
-    }
-
-    const newQuestion = {
-      type: type,
-      statement: statement,
-      media: media,
-      points: points,
-      duration: duration
-    };
-
-    if (type === 'direct') {
-      const directAnswer = document.getElementById('directAnswer').value;
-      const tolerance = document.getElementById('tolerance').value;
-      if (!directAnswer) {
-        alert('Veuillez entrer la réponse correcte.');
-        return;
-      }
-      newQuestion.directAnswer = directAnswer;
-      newQuestion.tolerance = tolerance;
-    } else if (type === 'qcm') {
-      const options = [];
-      document.querySelectorAll('#optionsList .option-container').forEach(opt => {
-        const text = opt.querySelector('input[type="text"]').value;
-        const correct = opt.querySelector('input[type="checkbox"]').checked;
-        if (text) {
-          options.push({ text: text, correct: correct });
-        }
-      });
-      if (options.length < 2) {
-        alert('Veuillez ajouter au moins 2 options pour un QCM.');
-        return;
-      }
-      newQuestion.options = options;
-    }
-
-    questions.push(newQuestion);
-    alert("Question ajoutée avec succès !");
-    this.reset();
-    optionsList.innerHTML = '';
-    directOptions.style.display = 'none';
-    qcmOptions.style.display = 'none';
-  });
-
   function finishAdding() {
-    if (questions.length === 0) {
-      alert('Ajoutez au moins une question.');
-      return;
-    }
-    localStorage.setItem('examQuestions', JSON.stringify(questions));
     window.location.href = "review_exam.html";
   }
 </script>
-<script src="../../script/add_question_backend.js"></script>
+<script src="../script/add_question_Backend.js"></script>
 </body>
 </html>

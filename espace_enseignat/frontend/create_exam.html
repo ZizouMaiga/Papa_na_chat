@@ -2,16 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Créer un Nouvel Examen - Application Examen</title>
   <link rel="stylesheet" href="createexam.css">
 </head>
 <body>
+  <!-- Système de notification -->
+  <div id="notification" class="notification"></div>
 
 <header>
   <h1>Application Examen</h1>
   <nav>
     <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
-    <a href="results.html" class="nav-button">Visualiser</a>
+    <a href="results.html" class="nav-button">Résultat</a>
     <a href="profile.html" class="nav-button">Profil</a>
     <a href="logout.html" class="nav-button">Déconnexion</a>
   </nav>
@@ -42,31 +45,63 @@
 </footer>
 
 <script>
-  document.getElementById('examForm').addEventListener('submit', function(event) {
+  // Fonction de notification
+  function showNotification(message, type = 'info') {
+    const notif = document.getElementById('notification');
+    notif.textContent = message;
+    notif.className = `notification ${type} show`;
+    
+    setTimeout(() => {
+      notif.classList.remove('show');
+    }, 3000);
+  }
+
+  document.getElementById('examForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
     const title = document.getElementById('title').value;
     const description = document.getElementById('description').value;
     const target = document.getElementById('target').value;
 
-    if (title && description && target) {
-      const examData = {
-        title: title,
-        description: description,
-        target: target
-      };
+    if (!title || !description || !target) {
+      showNotification('Veuillez remplir tous les champs.', 'error');
+      return;
+    }
 
-      // Stocker les infos de l'examen dans localStorage
-      localStorage.setItem('currentExam', JSON.stringify(examData));
+    const examData = {
+      title: title,
+      description: description,
+      target: target
+    };
 
-      // Redirection vers ajout de questions
-      window.location.href = "add_question.html";
-    } else {
-      alert('Veuillez remplir tous les champs.');
+    try {
+      const response = await fetch('http://localhost:3002/api/exams', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(examData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        localStorage.setItem('currentExamId', result.exam._id);
+        localStorage.setItem('currentExam', JSON.stringify(examData));
+        showNotification('Examen créé avec succès !', 'success');
+        setTimeout(() => {
+          window.location.href = "add_question.html";
+        }, 1000);
+      } else {
+        showNotification(result.message || 'Erreur lors de la création de l\'examen', 'error');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      showNotification('Erreur lors de la communication avec le serveur', 'error');
     }
   });
 </script>
-<script src="scripts/examBackend.js"></script>
+<script src="../script/examBackend.js"></script>
 
 </body>
 </html>

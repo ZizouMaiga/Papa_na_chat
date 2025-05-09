@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   
     try {
-      const response = await fetch(`http://localhost:3000/api/questions/${examId}`);
+      const response = await fetch(`http://localhost:3002/api/questions/${examId}`);
       const result = await response.json();
   
       if (!result.success) {
@@ -42,4 +42,3 @@ document.addEventListener("DOMContentLoaded", async () => {
       container.innerHTML = "<p>❌ Erreur lors du chargement des questions.</p>";
     }
   });
-  

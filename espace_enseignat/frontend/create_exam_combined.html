@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Créer un Examen</title>
+  <link rel="stylesheet" href="create_exam_combined.css">
+</head>
+<body>
+  <!-- Système de notification -->
+  <div id="notification" class="notification"></div>
+
+  <header>
+    <h1>Création d'Examen</h1>
+    <nav>
+      <a href="create_exam_combined.html" class="nav-button">Nouvel Examen</a>
+      <a href="results.html" class="nav-button">Résultats</a>
+      <a href="profile.html" class="nav-button">Profil</a>
+      <a href="#" class="nav-button" onclick="logout()">Déconnexion</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <!-- Section informations de l'examen -->
+    <div class="exam-info-section">
+      <h2>1. Informations de l'examen</h2>
+      <form id="examForm">
+        <label for="title">Titre de l'examen :</label>
+        <input type="text" id="title" name="title" required>
+
+        <label for="description">Description :</label>
+        <textarea id="description" name="description" rows="4" required></textarea>
+
+        <label for="target">Public ciblé :</label>
+        <input type="text" id="target" name="target" placeholder="Ex: 2e année MIP S4" required>
+      </form>
+    </div>
+
+    <!-- Section ajout de questions -->
+    <div class="questions-section" id="questionsSection" style="display: none;">
+      <h2>2. Ajouter des questions</h2>
+      <form id="questionForm">
+        <label for="questionType">Type de question :</label>
+        <select id="questionType" required>
+          <option value="">Sélectionner</option>
+          <option value="direct">Question Directe</option>
+          <option value="qcm">QCM</option>
+        </select>
+
+        <label for="statement">Énoncé :</label>
+        <textarea id="statement" rows="4" required></textarea>
+
+        <div id="directOptions" style="display: none;">
+          <label for="directAnswer">Réponse correcte :</label>
+          <input type="text" id="directAnswer">
+          <label for="tolerance">Tolérance (%) :</label>
+          <input type="number" id="tolerance" min="0" max="100" value="0">
+        </div>
+
+        <div id="qcmOptions" style="display: none;">
+          <label>Options du QCM :</label>
+          <div id="optionsList"></div>
+          <button type="button" class="secondary-btn" onclick="addOption()">+ Ajouter une option</button>
+        </div>
+
+        <label for="points">Points :</label>
+        <input type="number" id="points" min="1" required>
+
+        <label for="duration">Durée (secondes) :</label>
+        <input type="number" id="duration" min="10" required>
+
+        <button type="submit" class="primary-btn">Ajouter la question</button>
+      </form>
+    </div>
+
+    <!-- Section aperçu des questions -->
+    <div class="preview-section" id="previewSection" style="display: none;">
+      <h2>3. Questions ajoutées</h2>
+      <div id="questionsList"></div>
+    </div>
+
+    <!-- Boutons de contrôle -->
+    <div class="control-buttons">
+      <button id="startExamBtn" class="primary-btn">Créer l'examen</button>
+      <button id="publishExamBtn" class="success-btn" style="display: none;">Publier l'examen</button>
+    </div>
+
+    <!-- Container pour le lien de partage -->
+    <div id="shareLink" style="display: none;">
+      <p><strong>Lien de partage :</strong> <span id="examLink"></span></p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Plateforme d'Examen en ligne
+  </footer>
+
+  <script>
+    let currentExamId = null;
+    let questions = [];
+
+    // Fonction de notification
+    function showNotification(message, type = 'info') {
+      const notif = document.getElementById('notification');
+      notif.textContent = message;
+      notif.className = `notification ${type} show`;
+      
+      setTimeout(() => {
+        notif.classList.remove('show');
+      }, 3000);
+    }
+
+    // Gestionnaire pour la création de l'examen
+    document.getElementById('startExamBtn').addEventListener('click', async () => {
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const target = document.getElementById('target').value;
+
+      if (!title || !description || !target) {
+        showNotification('Veuillez remplir tous les champs de l\'examen', 'error');
+        return;
+      }
+
+      const examData = { title, description, target };
+      
+      try {
+        const response = await fetch('http://localhost:3002/api/exams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(examData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          currentExamId = result.exam._id;
+          document.getElementById('questionsSection').style.display = 'block';
+          document.getElementById('previewSection').style.display = 'block';
+          document.getElementById('startExamBtn').style.display = 'none';
+          document.getElementById('publishExamBtn').style.display = 'block';
+          
+          // Désactiver les champs d'information de l'examen
+          document.querySelectorAll('#examForm input, #examForm textarea').forEach(
+            input => input.disabled = true
+          );
+          showNotification('Examen créé avec succès', 'success');
+        }
+      } catch (error) {
+        showNotification('Erreur lors de la création de l\'examen', 'error');
+        console.error(error);
+      }
+    });
+
+    // Gestionnaire pour l'ajout de questions
+    document.getElementById('questionForm').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!currentExamId) {
+        showNotification('Veuillez d\'abord créer l\'examen', 'error');
+        return;
+      }
+
+      const questionData = {
+        type: document.getElementById('questionType').value,
+        statement: document.getElementById('statement').value,
+        points: parseInt(document.getElementById('points').value),
+        duration: parseInt(document.getElementById('duration').value)
+      };
+
+      if (questionData.type === 'direct') {
+        questionData.directAnswer = document.getElementById('directAnswer').value;
+        questionData.tolerance = parseInt(document.getElementById('tolerance').value);
+      } else if (questionData.type === 'qcm') {
+        const options = [];
+        document.querySelectorAll('#optionsList .option-container').forEach(opt => {
+          const text = opt.querySelector('input[type="text"]').value;
+          const correct = opt.querySelector('input[type="checkbox"]').checked;
+          if (text) options.push({ text, correct });
+        });
+        questionData.options = options;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3002/api/exams/${currentExamId}/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(questionData)
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          questions.push(questionData);
+          updateQuestionsList();
+          document.getElementById('questionForm').reset();
+          document.getElementById('optionsList').innerHTML = '';
+          showNotification('Question ajoutée avec succès', 'success');
+        }
+      } catch (error) {
+        showNotification('Erreur lors de l\'ajout de la question', 'error');
+        console.error(error);
+      }
+    });
+
+    // Gestionnaire pour le type de question
+    document.getElementById('questionType').addEventListener('change', function() {
+      const directOptions = document.getElementById('directOptions');
+      const qcmOptions = document.getElementById('qcmOptions');
+      
+      if (this.value === 'direct') {
+        directOptions.style.display = 'block';
+        qcmOptions.style.display = 'none';
+      } else if (this.value === 'qcm') {
+        directOptions.style.display = 'none';
+        qcmOptions.style.display = 'block';
+      } else {
+        directOptions.style.display = 'none';
+        qcmOptions.style.display = 'none';
+      }
+    });
+
+    // Fonction pour ajouter une option QCM
+    function addOption() {
+      const optionDiv = document.createElement('div');
+      optionDiv.className = 'option-container';
+      optionDiv.innerHTML = `
+        <input type="text" placeholder="Texte de l'option" required>
+        <label><input type="checkbox"> Bonne réponse</label>
+        <button type="button" class="remove-btn" onclick="this.parentElement.remove()">×</button>
+      `;
+      document.getElementById('optionsList').appendChild(optionDiv);
+    }
+
+    // Fonction pour mettre à jour la liste des questions
+    function updateQuestionsList() {
+      const container = document.getElementById('questionsList');
+      if (questions.length === 0) {
+        container.innerHTML = '<p class="no-questions">Aucune question n\'a encore été ajoutée</p>';
+        return;
+      }
+      
+      container.innerHTML = questions.map((q, index) => `
+        <div class="question-preview">
+          <h3>Question ${index + 1}</h3>
+          <p><strong>Type :</strong> ${q.type === 'qcm' ? 'QCM' : 'Question directe'}</p>
+          <p><strong>Énoncé :</strong> ${q.statement}</p>
+          <p><strong>Points :</strong> ${q.points}</p>
+          <div class="question-actions">
+            <button onclick="deleteQuestion(${index})" class="delete-btn">Supprimer</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Fonction pour supprimer une question
+    async function deleteQuestion(index) {
+      if (!confirm('Voulez-vous vraiment supprimer cette question ?')) return;
+      
+      try {
+        const questionId = questions[index]._id;
+        const response = await fetch(`http://localhost:3002/api/exams/${currentExamId}/questions/${questionId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+          questions.splice(index, 1);
+          updateQuestionsList();
+          showNotification('Question supprimée avec succès', 'success');
+        }
+      } catch (error) {
+        showNotification('Erreur lors de la suppression de la question', 'error');
+        console.error(error);
+      }
+    }
+
+    // Gestionnaire pour la publication de l'examen
+    document.getElementById('publishExamBtn').addEventListener('click', async () => {
+      if (questions.length === 0) {
+        showNotification('Ajoutez au moins une question avant de publier l\'examen', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3002/api/exams/${currentExamId}/publish`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          const shareLink = `${window.location.origin}/espace_etudiant/exam.html?id=${currentExamId}`;
+          document.getElementById('examLink').textContent = shareLink;
+          document.getElementById('shareLink').style.display = 'block';
+          document.getElementById('publishExamBtn').disabled = true;
+          showNotification('Examen publié avec succès', 'success');
+        }
+      } catch (error) {
+        showNotification('Erreur lors de la publication de l\'examen', 'error');
+        console.error(error);
+      }
+    });
+
+    // Fonction de déconnexion
+    function logout() {
+      localStorage.removeItem('user');
+      window.location.href = '../../Frontend/connexion.html';
+    }
+  </script>
+</body>
+</html>

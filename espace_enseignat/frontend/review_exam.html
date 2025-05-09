@@ -34,18 +34,42 @@
 </footer>
 
 <script>
-  let examInfo = JSON.parse(localStorage.getItem('currentExam')) || {
+  let examInfo = {
     title: "Titre manquant",
     description: "Pas de description",
     target: "Non défini"
   };
-  let questions = JSON.parse(localStorage.getItem('examQuestions')) || [];
+  let questions = [];
+
+  async function fetchExamAndQuestions() {
+    const examId = localStorage.getItem('currentExamId');
+    if (!examId) {
+      alert("Erreur : ID de l'examen non trouvé");
+      window.location.href = 'create_exam.html';
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:3002/api/exams/${examId}`);
+      const data = await response.json();
+      if (data.success) {
+        examInfo = data.exam;
+        questions = data.exam.questions || [];
+        if (questions.length === 0) {
+          document.getElementById('questionList').innerHTML = '<div class="no-questions">Aucune question trouvée pour cet examen. Ajoutez des questions avant de publier.</div>';
+        }
+      } else {
+        document.getElementById('questionList').innerHTML = '<div class="error">Erreur lors du chargement de l\'examen : ' + (data.message || 'Erreur inconnue') + '</div>';
+      }
+    } catch (error) {
+      document.getElementById('questionList').innerHTML = '<div class="error">Erreur réseau lors du chargement de l\'examen.</div>';
+    }
+  }
 
   function renderExam() {
     document.getElementById('examHeader').innerHTML = `
       <h2>${examInfo.title}</h2>
       <p><strong>Description :</strong> ${examInfo.description}</p>
-      <p><strongPublic concerné :</strong> ${examInfo.target}</p>
+      <p><strong>Public concerné :</strong> ${examInfo.target}</p>
     `;
 
     let html = "";
@@ -66,55 +90,92 @@
         `;
       } else if (q.type === "qcm") {
         html += `<div class="options"><strong>Options :</strong><ul>`;
-        q.options.forEach(opt => {
+        (q.options || []).forEach(opt => {
           html += `<li>${opt.text} ${opt.correct ? "<strong>(✓)</strong>" : ""}</li>`;
         });
         html += `</ul></div>`;
       }
 
+      // Ajout des boutons Modifier et Supprimer
       html += `
-        <div class="btn-group">
-          <button class="edit-btn" onclick="editQuestion(${index})">Modifier</button>
-          <button class="delete-btn" onclick="deleteQuestion(${index})">Supprimer</button>
-        </div>
+        <button onclick="editQuestion('${q._id}')">✏️ Modifier</button>
+        <button onclick="deleteQuestion('${q._id}')">🗑️ Supprimer</button>
+      `;
+
+      html += `
         </div>
       `;
     });
 
+    // Bouton Ajouter une question
+    html += `<button class="add-btn" onclick="addQuestion()">➕ Ajouter une question</button>`;
+
     document.getElementById('questionList').innerHTML = html;
   }
 
-  function editQuestion(index) {
-    const q = questions[index];
-    const newStatement = prompt("Modifier l'énoncé :", q.statement);
-    if (newStatement !== null && newStatement.trim() !== "") {
-      q.statement = newStatement;
-      localStorage.setItem('examQuestions', JSON.stringify(questions));
-      renderExam();
-    }
-  }
-
-  function deleteQuestion(index) {
-    if (confirm("Supprimer cette question ?")) {
-      questions.splice(index, 1);
-      localStorage.setItem('examQuestions', JSON.stringify(questions));
-      renderExam();
-    }
-  }
-
-  function publishExam() {
+  async function publishExam() {
     if (questions.length === 0) {
       alert("Ajoutez des questions avant de publier.");
       return;
     }
-    const examId = Math.random().toString(36).substr(2, 8);
-    const url = window.location.origin + "/exam.html?id=" + examId;
+    const examId = localStorage.getItem('currentExamId');
+    if (!examId) {
+      alert("Erreur : ID de l'examen non trouvé");
+      return;
+    }
+    const url = `${window.location.origin}/espace_etudiant/exam.html?id=${examId}`;
     document.getElementById('exam-link').textContent = url;
     document.getElementById('link-container').style.display = "block";
-    alert("Examen publié avec succès !");
+    try {
+      const response = await fetch(`http://localhost:3002/api/exams/${examId}/publish`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert("Examen publié avec succès !");
+      } else {
+        alert("Erreur lors de la publication : " + data.message);
+      }
+    } catch (error) {
+      alert("Erreur lors de la publication de l'examen");
+    }
   }
 
-  renderExam();
+  // Fonctions pour les boutons
+  function editQuestion(questionId) {
+    localStorage.setItem('editQuestionId', questionId);
+    window.location.href = 'add_question.html';
+  }
+
+  async function deleteQuestion(questionId) {
+    if (!confirm('Voulez-vous vraiment supprimer cette question ?')) return;
+    const examId = localStorage.getItem('currentExamId');
+    try {
+      const response = await fetch(`http://localhost:3002/api/questions/${examId}/${questionId}`, {
+        method: 'DELETE',
+      });
+      const data = await response.json();
+      if (data.success) {
+        alert('Question supprimée.');
+        await fetchExamAndQuestions();
+        renderExam();
+      } else {
+        alert('Erreur lors de la suppression : ' + data.message);
+      }
+    } catch (e) {
+      alert('Erreur réseau lors de la suppression.');
+    }
+  }
+
+  function addQuestion() {
+    window.location.href = 'add_question.html';
+  }
+
+  // Chargement initial
+  fetchExamAndQuestions().then(renderExam);
 </script>
 <script src="../../script/review_exam_backend.js"></script>
 

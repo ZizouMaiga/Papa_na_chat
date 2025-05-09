@@ -2,16 +2,48 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Examen Étudiant</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examen en cours</title>
   <link rel="stylesheet" href="exam.css">
 </head>
 <body>
-  <div id="container">
+  <div class="exam-header">
     <h1 id="titreExam">Chargement de l'examen...</h1>
     <p id="locationStatus"></p>
-    <button id="startBtn" style="display:none">Commencer l'examen</button>
   </div>
 
-  <script src="scripts/examen.js"></script>
+  <div id="container" class="exam-container">
+    <div class="start-screen">
+      <p>Vous êtes sur le point de commencer votre examen.</p>
+      <p>Assurez-vous d'être dans un environnement calme et sans distractions.</p>
+      <button id="startBtn" class="btn-primary" style="display:none">
+        Commencer l'examen
+      </button>
+    </div>
+  </div>
+
+  <script src="scripts/exam.js"></script>
+  <script>
+    // Géolocalisation avant de permettre le démarrage de l'examen
+    document.addEventListener('DOMContentLoaded', function() {
+      const locationStatus = document.getElementById('locationStatus');
+      const startBtn = document.getElementById('startBtn');
+      if (!navigator.geolocation) {
+        locationStatus.textContent = "La géolocalisation n'est pas supportée par votre navigateur.";
+        startBtn.style.display = 'none';
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // locationStatus.textContent = 'Position vérifiée. Vous pouvez commencer l\'examen.';
+          startBtn.style.display = 'block';
+        },
+        (error) => {
+          locationStatus.textContent = "Impossible d'obtenir votre position. L'examen ne peut pas démarrer.";
+          startBtn.style.display = 'none';
+        }
+      );
+    });
+  </script>
 </body>
 </html>

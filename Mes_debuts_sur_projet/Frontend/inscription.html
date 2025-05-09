@@ -46,20 +46,15 @@
     document.getElementById("signupForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const data = {
-        type: document.getElementById("typeUtilisateur").value,
-        email: document.getElementById("email").value,
-        nom: document.getElementById("nom").value,
-        prenom: document.getElementById("prenom").value,
-        dateNaissance: document.getElementById("dateNaissance").value,
-        sexe: document.getElementById("sexe").value,
-        etablissement: document.getElementById("etablissement").value,
-        filiere: document.getElementById("filiere").value,
-        password: document.getElementById("password").value
-      };
+      // Préparer les données attendues par le backend
+      const name = document.getElementById("prenom").value + " " + document.getElementById("nom").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const data = { name, email, password };
 
       try {
-        const response = await fetch("http://localhost:3000/inscription", {
+        const response = await fetch("http://localhost:3002/api/users/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
@@ -71,9 +66,9 @@
 
         if (response.ok) {
           alert("Inscription réussie !");
-          window.location.href = "Connexion.html";
+          window.location.href = "connexion.html";
         } else {
-          document.getElementById("message").textContent = result.error || "Erreur lors de l'inscription.";
+          document.getElementById("message").textContent = result.message || "Erreur lors de l'inscription.";
         }
       } catch (error) {
         document.getElementById("message").textContent = "Erreur réseau ou serveur.";
