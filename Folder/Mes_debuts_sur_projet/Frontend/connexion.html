@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Connexion</title>
+  <link rel="stylesheet" href="connexion.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <form id="loginForm">
+    <h1>Connexion</h1>
+    <i class="fas fa-user-tie"></i>
+    <select id="type" required>
+      <option value="">-- opter pour --</option>
+      <option value="etudiant">Étudiant</option>
+      <option value="enseignant">Enseignant</option>
+    </select>
+    <i class="fas fa-envelope"></i>
+    <input type="email" id="email" placeholder="Email" required />
+    <i class="fas fa-lock"></i>
+    <input type="password" id="password" placeholder="Mot de passe" required />
+    <i class="fas fa-arrow-right-to-bracket"></i>
+    <button type="submit">Se connecter</button>
+    <p id="message"></p>
+    <div class="remember-line">
+      <span>Se remémorer de moi</span>
+      <a href="#"class="forgot-password">Mot de passe oublié ?</a>
+    </div>
+    <div class="remember-check">
+      <input type="checkbox" id="remember">
+    </div>
+    <div class="signup-link">
+      <p>Pas encore de compte ? <a href="Inscription.html">Inscrivez-vous</a></p>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const response = await fetch('http://localhost:3002/api/users/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert('Connexion réussie !');
+          // Redirection selon le rôle
+          if (result.user && result.user.role === 'admin') {
+            window.location.href = '../espace_enseignat/frontend/create_exam.html';
+          } else {
+            window.location.href = '../../espace_etudiant/index.html';
+          }
+        } else {
+          document.getElementById('message').textContent = result.message || "Erreur lors de la connexion.";
+        }
+      } catch (error) {
+        document.getElementById('message').textContent = "Erreur réseau ou serveur.";
+      }
+    });
+  </script>
+</body>
+</html>
+

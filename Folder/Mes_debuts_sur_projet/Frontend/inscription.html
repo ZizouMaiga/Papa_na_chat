@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Inscription</title>
+  <link rel="stylesheet" href="inscription.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <form id="signupForm">
+    <h1>fiche d'adhésion </h1>
+    <i class="fas fa-users"></i>
+    <select id="typeUtilisateur" required>
+      <option value="">-- se prononcer pour --</option>
+      <option value="etudiant">Étudiant</option>
+      <option value="enseignant">Enseignant</option>
+    </select>
+    <i class="fas fa-envelope"></i>
+    <input type="email" id="email" placeholder="Email" required />
+    <i class="fas fa-id-card"></i>
+    <input type="text" id="nom" placeholder="Nom" required />
+    <i class="fas fa-user-circle"></i>
+    <input type="text" id="prenom" placeholder="Prénom" required />
+    <i class="fas fa-envelope"></i>
+    <input type="date" id="dateNaissance" required />
+    <i class="fas fa-venus-mars"></i>
+    <select id="sexe" required>
+      <option value="">-- Sexe --</option>
+      <option value="Homme">Homme</option>
+      <option value="Femme">Femme</option>
+    </select>
+    <i class="fas fa-school"></i>
+    <input type="text" id="etablissement" placeholder="Établissement" required />
+    <i class="fas fa-book"></i>
+    <input type="text" id="filiere" placeholder="Filière" required />
+    <i class="fas fa-lock"></i>
+    <input type="password" id="password" placeholder="Mot de passe" required />
+    <button type="submit">S'inscrire</button>
+    <p id="message"></p>
+    <div class="login-link">
+      <p>Déjà un compte ? <a href="Connexion.html">Connectez-vous</a></p>
+    </div>
+  </form>
+
+  <script>
+    document.getElementById("signupForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      // Préparer les données attendues par le backend
+      const name = document.getElementById("prenom").value + " " + document.getElementById("nom").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const data = { name, email, password };
+
+      try {
+        const response = await fetch("http://localhost:3002/api/users/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          alert("Inscription réussie !");
+          window.location.href = "connexion.html";
+        } else {
+          document.getElementById("message").textContent = result.message || "Erreur lors de l'inscription.";
+        }
+      } catch (error) {
+        document.getElementById("message").textContent = "Erreur réseau ou serveur.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+

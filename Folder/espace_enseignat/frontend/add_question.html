@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ajouter une Question - Application Examen</title>
+  <link rel="stylesheet" href="addquestion.css">
+
+</head>
+<body>
+
+<header id="mainHeader">
+  <h1>Application Examen </h1>
+  <nav>
+    <a href="create_exam.html" class="nav-button">Nouvel Examen</a>
+    <a href="results.html" class="nav-button">Résultat</a>
+    <a href="profile.html" class="nav-button">Profil</a>
+    <a href="logout.html" class="nav-button">Déconnexion</a>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="question-form">
+    <h2>Ajouter une Question</h2>
+    <form id="questionForm">
+      <label for="questionType">Type de question :</label>
+      <select id="questionType" required>
+        <option value=""> Sélectionner </option>
+        <option value="direct">Question Directe</option>
+        <option value="qcm">QCM</option>
+      </select>
+
+      <label for="statement">Énoncé :</label>
+      <textarea id="statement" rows="4" required></textarea>
+
+      
+
+      <div id="directOptions" style="display: none;">
+        <label for="directAnswer">Réponse correcte :</label>
+        <input type="text" id="directAnswer">
+
+        <label for="tolerance">Taux de tolérance (%) :</label>
+        <input type="number" id="tolerance" min="0" max="100" value="0">
+      </div>
+
+      <div id="qcmOptions" style="display: none;">
+        <label>Options du QCM :</label>
+        <div id="optionsList"></div>
+        <button type="button" onclick="addOption()">Ajouter une Option</button>
+      </div>
+
+      <label for="points">Note :</label>
+      <input type="number" id="points" min="1" required>
+
+      <label for="duration">Durée (en secondes) :</label>
+      <input type="number" id="duration" min="10" required>
+      <label for="media">Média (Image / Audio / Vidéo) :</label>
+      <input type="file" id="media" accept="image/,audio/,video/*">
+
+      <button type="submit" style="margin-top: 1rem;">Ajouter la Question</button>
+    </form>
+  </div>
+
+  <button class="finish-btn" onclick="finishAdding()">Terminer et consulter l'examen</button>
+
+</div>
+
+<footer>
+  &copy; 2025 Plateforme d’Examen en ligne
+</footer>
+
+<script>
+  // Vérifier l'ID de l'examen au chargement
+  document.addEventListener('DOMContentLoaded', () => {
+    const examId = localStorage.getItem('currentExamId');
+    document.body.insertAdjacentHTML('afterbegin', `<div style="color:blue;font-size:14px;">ID Examen courant : <b>${examId}</b></div>`);
+    if (!examId) {
+      alert('Erreur : Aucun examen en cours. Retour à la création d\'examen.');
+      window.location.href = 'create_exam.html';
+      return;
+    }
+  });
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var header = document.getElementById('mainHeader');
+    if (header) header.style.display = 'none';
+  });
+
+  const questionType = document.getElementById('questionType');
+  const directOptions = document.getElementById('directOptions');
+  const qcmOptions = document.getElementById('qcmOptions');
+  const optionsList = document.getElementById('optionsList');
+
+  questionType.addEventListener('change', function() {
+    if (this.value === 'direct') {
+      directOptions.style.display = 'block';
+      qcmOptions.style.display = 'none';
+    } else if (this.value === 'qcm') {
+      directOptions.style.display = 'none';
+      qcmOptions.style.display = 'block';
+    } else {
+      directOptions.style.display = 'none';
+      qcmOptions.style.display = 'none';
+    }
+  });
+
+  function addOption() {
+    const optionDiv = document.createElement('div');
+    optionDiv.classList.add('option-container');
+    optionDiv.innerHTML = `
+      <input type="text" placeholder="Texte de l'option" required>
+      <label><input type="checkbox"> Bonne réponse</label>
+    `;
+    optionsList.appendChild(optionDiv);
+  }
+
+  function finishAdding() {
+    window.location.href = "review_exam.html";
+  }
+</script>
+<script src="../script/add_question_Backend.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Résultats des Examens</title>
+  <link rel="stylesheet" href="result.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+  <header class="main-header">
+    <div class="container">
+      <h1 class="logo">Plateforme d’Examen</h1>
+      <nav class="nav">
+        <ul>
+          <li><a href="dashboard.html">Tableau de bord</a></li>
+          <li><a href="logout.html">Déconnexion</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="exam-results">
+      <h2>Résultats de l'examen : <span class="exam-title">[Titre de l'examen]</span></h2>
+
+      <!-- Le backend affichera ce tableau SEULEMENT si au moins un étudiant a passé l’examen -->
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Classe</th>
+            <th>Note</th>
+            <th>Copie</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- À remplir par le backend SI l'étudiant a passé l'examen -->
+        </tbody>
+      </table>
+
+      <!-- Message de remplacement si personne n'a encore passé l'examen -->
+      <p class="no-results">Aucun étudiant n’a encore passé cet examen.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Plateforme d’Examen en ligne</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Demander le titre de l'examen à afficher
+      let examTitle = prompt("Entrez le titre de l'examen pour voir les résultats :");
+      if (!examTitle) return;
+      document.querySelector('.exam-title').textContent = examTitle;
+
+      try {
+        // Appel à l'API pour récupérer les résultats de l'examen par titre
+        const response = await fetch(`http://localhost:3002/api/exams/results?title=${encodeURIComponent(examTitle)}`);
+        const data = await response.json();
+        const tbody = document.querySelector('.results-table tbody');
+        const noResultsMsg = document.querySelector('.no-results');
+
+        if (response.ok && data.results && data.results.length > 0) {
+          noResultsMsg.style.display = 'none';
+          data.results.forEach(result => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${result.nom || ''}</td>
+              <td>${result.prenom || ''}</td>
+              <td>${result.classe || ''}</td>
+              <td>${result.note || ''}</td>
+              <td><a href="${result.copieUrl || '#'}" target="_blank">Voir</a></td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          noResultsMsg.style.display = 'block';
+        }
+      } catch (err) {
+        alert("Erreur lors de la récupération des résultats.");
+      }
+    });
+  </script>
+
+</body>
+</html>

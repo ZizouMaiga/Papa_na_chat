@@ -1,0 +1,106 @@
+/* connexion.css */
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #f5f2f0, #e8e3dd);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+  
+  form#loginForm {
+    background-color: white;
+    padding: 50px 50px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 380px;
+  }
+  
+  form#loginForm h1 {
+    text-align: center;
+    text-decoration: solid underline;
+    color: #5c4438;
+    margin-bottom: 25px;
+  }
+  
+  form#loginForm select,
+  form#loginForm input {
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    transition: border 0.3s ease;
+  }
+  
+  form#loginForm select:focus,
+  form#loginForm input:focus {
+    border-color: #a77c59;
+    outline: none;
+  }
+  
+  form#loginForm button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    background-color: #a77c59;
+    color: white;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  form#loginForm button:hover {
+    background-color: #8a6245;
+  }
+  
+  .signup-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  .signup-link a {
+    color: #a77c59;
+    text-decoration: underline;
+  }
+  
+  .signup-link a:hover {
+    text-decoration: underline;
+  }
+  .remember-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    color: #5c4438;
+    margin-bottom: 5px;
+    text-decoration: solid underline;
+  }
+  
+  .forgot-password {
+    text-decoration: solid underline;
+    color: #a77c59;
+    font-size: 13px;
+  }
+  
+  .forgot-password:hover {
+    text-decoration: solid underline;
+  }
+  
+  .remember-check {
+    text-align: right; /* ou center si tu préfères */
+    margin-bottom: 15px;
+  }
+  
+  .remember-check input[type="checkbox"] {
+    accent-color: #a77c59;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  
+  
