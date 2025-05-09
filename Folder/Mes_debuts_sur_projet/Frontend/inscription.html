@@ -46,12 +46,26 @@
     document.getElementById("signupForm").addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      // Préparer les données attendues par le backend
+      // Récupération de toutes les informations du formulaire
       const name = document.getElementById("prenom").value + " " + document.getElementById("nom").value;
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
+      const type = document.getElementById("typeUtilisateur").value;  // type d'utilisateur (étudiant ou enseignant)
+      const dateNaissance = document.getElementById("dateNaissance").value;
+      const sexe = document.getElementById("sexe").value;
+      const etablissement = document.getElementById("etablissement").value;
+      const filiere = document.getElementById("filiere").value;
 
-      const data = { name, email, password };
+      const data = {
+        name,
+        email,
+        password,
+        role: type,          // Envoi du rôle sélectionné
+        dateNaissance,
+        sexe,
+        etablissement,
+        filiere
+      };
 
       try {
         const response = await fetch("http://localhost:3002/api/users/register", {
@@ -59,7 +73,7 @@
           headers: {
             "Content-Type": "application/json"
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(data)  // Envoi de toutes les données
         });
 
         const result = await response.json();
@@ -78,9 +92,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
-

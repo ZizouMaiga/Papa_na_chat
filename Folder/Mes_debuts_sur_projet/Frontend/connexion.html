@@ -53,7 +53,7 @@
         if (response.ok) {
           alert('Connexion réussie !');
           // Redirection selon le rôle
-          if (result.user && result.user.role === 'admin') {
+          if (result.user && result.user.role === 'enseignant') {
             window.location.href = '../espace_enseignat/frontend/create_exam.html';
           } else {
             window.location.href = '../../espace_etudiant/index.html';

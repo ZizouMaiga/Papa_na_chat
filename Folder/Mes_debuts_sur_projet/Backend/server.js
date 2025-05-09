@@ -43,14 +43,7 @@ connectDB()
       console.log("=================================");
       console.log(`🚀 Serveur démarré sur le port ${PORT}`);
       console.log(`📝 Test API: http://localhost:${PORT}/test`);
-      console.log("📚 API Documentation:");
-      console.log("   - GET    /api/exams         : Liste des examens");
-      console.log("   - POST   /api/exams         : Créer un examen");
-      console.log("   - GET    /api/exams/:id     : Détails d'un examen");
-      console.log("   - POST   /api/exams/:id/questions : Ajouter une question");
-      console.log("   - PUT    /api/exams/:id/publish  : Publier un examen");
-      console.log("=================================");
-    });
+  });
   })
   .catch(err => {
     console.error("❌ Erreur de démarrage:", err);
